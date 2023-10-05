@@ -10,6 +10,12 @@ pub struct Ping;
 
 static NAME: &str = "ping";
 
+impl Ping {
+    pub fn new() -> Ping {
+        Ping{}
+    }
+}
+
 #[async_trait]
 impl command::SlashCommand for Ping {
 
@@ -35,8 +41,4 @@ impl command::SlashCommand for Ping {
         };
     }
 
-}
-
-pub fn new() -> Ping {
-    Ping{}
 }

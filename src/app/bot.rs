@@ -13,13 +13,13 @@ pub async fn start() {
     let token = config.get("token").expect("no token").as_str().unwrap();
 
     let intents = GatewayIntents::non_privileged()
-    | GatewayIntents::MESSAGE_CONTENT
-    | GatewayIntents::DIRECT_MESSAGES
-    | GatewayIntents::GUILD_MESSAGES;
+        | GatewayIntents::MESSAGE_CONTENT
+        | GatewayIntents::DIRECT_MESSAGES
+        | GatewayIntents::GUILD_MESSAGES;
 
     let framework = StandardFramework::new()
-    .configure(|c| c.prefix("~"))
-    .group(&NORMALMESSAGE_GROUP);
+        .configure(|c| c.prefix("~"))
+        .group(&NORMALMESSAGE_GROUP);
 
     let mut client = Client::builder(token, intents)
         .event_handler(event_handle::Handler)

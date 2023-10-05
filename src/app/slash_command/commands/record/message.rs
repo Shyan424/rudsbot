@@ -5,7 +5,7 @@ use serenity::model::prelude::{ChannelId, Message};
 use serenity::prelude::Context;
 use tokio::sync::Mutex;
 
-pub async fn record(ctx: &Context, message: &Message) {
+pub async fn send_record(ctx: &Context, message: &Message) {
     let map = Arc::clone(record_channel());
     let map = map.lock().await;
 

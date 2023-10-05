@@ -1,11 +1,11 @@
-use std::sync::{OnceLock, Arc};
+use std::sync::OnceLock;
 
 use serenity::async_trait;
 use serenity::model::prelude::command::Command;
 use serenity::model::prelude::{UserId, Interaction, Ready, Message};
 use serenity::prelude::{EventHandler, Context};
 
-use super::slash_command::{self, command, commands};
+use super::slash_command::{self, commands};
 
 
 pub struct Handler;
@@ -20,7 +20,7 @@ static BOT: OnceLock<BotInfo> = OnceLock::new();
 #[async_trait]
 impl EventHandler for Handler {
     async fn message(&self, ctx: Context, new_message: Message) {
-        commands::record::message::record(&ctx, &new_message).await;
+        commands::record::message::send_record(&ctx, &new_message).await;
     }
 
     async fn interaction_create(&self, ctx: Context, interaction: Interaction) {

@@ -17,6 +17,12 @@ pub struct Record {}
 
 static NAME: &str = "record";
 
+impl Record {
+    pub fn new() -> Record {
+        Record {}
+    }
+}
+
 #[async_trait]
 impl SlashCommand for Record {
     fn get_name(&self) -> String {
@@ -152,8 +158,4 @@ fn handel_del(this_channel: ChannelId, record_channel: ChannelId) -> String {
 
 fn handel_show(this_channel: ChannelId) -> String {
     String::from("還沒做好...")
-}
-
-pub fn new() -> Record {
-    Record {}
 }

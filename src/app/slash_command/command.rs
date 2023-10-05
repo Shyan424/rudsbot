@@ -6,8 +6,8 @@ use serenity::builder::{CreateApplicationCommands, CreateApplicationCommand};
 use serenity::model::prelude::application_command::ApplicationCommandInteraction;
 use serenity::prelude::Context;
 
-use super::commands::ping;
-use super::commands::record::record;
+use super::commands::ping::Ping;
+use super::commands::record::record::Record;
 
 #[async_trait]
 pub trait SlashCommand {
@@ -18,13 +18,13 @@ pub trait SlashCommand {
 
 pub fn regist_commands(commands: &mut CreateApplicationCommands) -> &mut CreateApplicationCommands {
     let slash_commands: Vec<Arc<dyn SlashCommand + Sync + Send>> = vec![
-            Arc::new(ping::new()),
-            Arc::new(record::new())
+            Arc::new(Ping::new()),
+            Arc::new(Record::new())
         ];
 
     for sc in slash_commands {
         commands.create_application_command(sc.regist_command());
-        hashmap().lock().unwrap().insert(sc.get_name(), sc);
+        slash_command_map().lock().unwrap().insert(sc.get_name(), sc);
     };
 
     commands
@@ -34,16 +34,24 @@ pub async fn handle_commands(ctx :Context, command: ApplicationCommandInteractio
     let name = &command.data.name;
 
     println!("command {} in", name);
+    
+    let sc = {
+        // clone 跟 unwrap 暫存的關係要拆兩行
+        let slash_command_map = slash_command_map();
+        let slash_command_map = slash_command_map.lock().unwrap();
 
-    let sc = match hashmap().lock().unwrap().get(name) {
-        Some(c) => Arc::clone(c),
-        None => return println!("No RES"),
+        match slash_command_map.get(name) {
+            Some(s) => Arc::clone(s),
+            None => return println!("No RES"),
+        }
     };
     
     sc.handle_command(ctx, command).await;
 }
 
-fn hashmap() -> &'static Mutex<HashMap<String, Arc<dyn SlashCommand + Sync + Send>>> {
-    static SLASH_COMMANDS: OnceLock<Mutex<HashMap<String, Arc<dyn SlashCommand + Sync + Send>>>> = OnceLock::new();
-    SLASH_COMMANDS.get_or_init(|| HashMap::new().into())
+type SlashCommandMap = Arc<Mutex<HashMap<String, Arc<dyn SlashCommand + Sync + Send>>>>;
+
+fn slash_command_map() -> SlashCommandMap {
+    static SLASH_COMMANDS: OnceLock<SlashCommandMap> = OnceLock::new();
+    Arc::clone(&SLASH_COMMANDS.get_or_init(|| Arc::new(Mutex::new(HashMap::new()))))
 }
